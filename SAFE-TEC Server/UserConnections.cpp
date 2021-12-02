@@ -38,3 +38,11 @@ void UserConnection::setUserDataFromJSON(std::string stringofJSON)
 	password = json.get("password", "null").asString();
 	user_id = json.get("user_id", 0).asLargestInt();
 }
+
+bool UserConnection::isValid()
+{
+	if (login.empty() && password.empty())
+		return false;
+	else return true;
+	
+}
