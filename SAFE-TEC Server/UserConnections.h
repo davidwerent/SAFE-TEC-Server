@@ -12,6 +12,8 @@ public:
     UserConnection(std::string _login, std::string _password, int id);
     std::string print();
     void setUserDataFromJSON(std::string stringofJSON);
+    bool isValid();
 
 
 };
+void RunCommand(std::string command);
