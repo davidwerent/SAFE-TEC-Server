@@ -79,7 +79,7 @@ void RunCommand(UserConnection* user, std::string strjson)
 }
 bool Auth(std::string login, std::string password)
 {
-	Database s("localhost", "root", "admin", "userlist", 3306);
+	Database s("localhost", "root", "Gudini2306%", "Userlist", 3306);
 	UserConnection user;
 	user = s.xLoadUserFromTable(login, password);
 	if (user.isValid()) return true;

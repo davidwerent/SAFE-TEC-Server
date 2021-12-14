@@ -21,7 +21,7 @@ ws.send("somecommand");
 
 int main()
 {
-    int port = 8888;
+    int port = 1456;
     unsigned long latest_user_id = 10;
     
     std::string strjson = R"({ 
@@ -90,14 +90,22 @@ int main()
         .open = [&latest_user_id](auto* ws) {
             UserConnection* data = (UserConnection*)ws->getUserData();
             std::cout << "New user connected" << std::endl;
+            ws->subscribe("broadcast");
+            ws->subscribe("user#" + std::to_string(data->user_id));
+            ws->publish("broadcast", "hello client!\n");
 
         },
         .message = [](auto* ws, std::string_view message, uWS::OpCode opCode) {
              UserConnection* data = (UserConnection*)ws->getUserData();
              std::string c{ message };
+             std::cout << message << std::endl;
              RunCommand(data, c);
-             std::cout << data->login << " " << data->password << std::endl;
-          
+             //std::cout << data->login << " " << data->password << std::endl;
+             std::string answer{ message };
+             answer.append(" \nbut sorry i cant do it, yet ;(");
+            
+               
+             ws->publish("broadcast", answer);
         },
         .close = [](auto* ws, int code, std::string_view message)
         {

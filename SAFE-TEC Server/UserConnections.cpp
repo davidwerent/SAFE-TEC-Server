@@ -5,6 +5,13 @@ UserConnection::UserConnection()
 	login = "";
 	password = "";
 	user_id = 0;
+	role = 0;
+	fullname = "";
+	phone = "";
+	position = "";
+	company = "";
+	photo = "";
+	device_id = "";
 }
 
 UserConnection::UserConnection(const UserConnection& data)
