@@ -5,6 +5,13 @@ UserConnection::UserConnection()
 	login = "";
 	password = "";
 	user_id = 0;
+	role = 0;
+	fullname = "";
+	phone = "";
+	position = "";
+	company = "";
+	photo = "";
+	device_id = "";
 }
 
 UserConnection::UserConnection(const UserConnection& data)
@@ -21,9 +28,19 @@ UserConnection::UserConnection(std::string _login, std::string _password, int id
 	user_id = id;
 }
 
-std::string UserConnection::print()
+void UserConnection::print()
 {
-	return login + " " + password + " " + std::to_string(user_id);
+	std::cout << "\nuser_id\t\t=" << user_id;
+	std::cout << "\nemail\t\t=" << login;
+	std::cout << "\npassword\t=" << password;
+	std::cout << "\nrole\t\t=" << role;
+	std::cout << "\nfullname\t=" << fullname;
+	std::cout << "\nphone\t\t=" << phone;
+	std::cout << "\nposition\t=" << position;
+	std::cout << "\ncompany\t\t=" << company;
+	std::cout << "\nphoto\t\t=" << photo;
+	std::cout << "\ndevice_id\t=" << device_id;
+	std::cout << std::endl;
 }
 
 void UserConnection::setUserDataFromJSON(std::string stringofJSON)
@@ -37,4 +54,12 @@ void UserConnection::setUserDataFromJSON(std::string stringofJSON)
 	login = json.get("login", "null").asString();
 	password = json.get("password", "null").asString();
 	user_id = json.get("user_id", 0).asLargestInt();
+}
+
+bool UserConnection::isValid()
+{
+	if (!login.empty() && !password.empty())
+		return false;
+	else return true;
+	
 }
