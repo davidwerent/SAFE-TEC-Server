@@ -7,11 +7,19 @@
 
 enum class COMMAND
 {
-	AUTH = 1,
-	GETZONE = 2
+	error = 0,
+	auth = 1,
+	signUp = 2,
+	zone = 3
 };
 
-void RunCommand(std::string strjson);
-void RunCommand(UserConnection* user, std::string strjson);
 
-bool Auth(std::string login, std::string password);
+std::string NewCommand(UserConnection* user, std::string strjson);
+bool newauth(Json::Value json);
+
+std::string CreateResponseAuth();
+std::string CreateResponseSignUp(int code);
+int SignUp(Json::Value json);
+
+
+

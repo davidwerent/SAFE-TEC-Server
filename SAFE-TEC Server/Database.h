@@ -32,10 +32,14 @@ public:
 	void ChangeActiveTable(string q);
 	int GetRowCount();
 	int GetColCount();
+	int GetQState() { return qstate; };
 	void GetTypeInfo();
 	void LoadClientFromTable(string _login, string _password, int _role);
 	UserConnection xLoadUserFromTable(string _login, string _password);
+	UserConnection xInsertToTable(string login, string password, string fullname, string deviceID);
+
 	bool isLogin();
 	bool isConnected();
+	bool CheckEmail(string _login);
 	int GetAccessLevel();
 };
