@@ -18,7 +18,7 @@ Database::Database(string IP, string login, string password, string dbname, int 
 	Client.login = "";
 	Client.password = "";
 	Client.role = 0;
-	ActiveTableName = "test";
+	ActiveTableName = "user";
 	qstate = 0;
 	conn = mysql_init(0);
 	conn = mysql_real_connect(conn, IP.c_str(), login.c_str(),
@@ -99,7 +99,7 @@ int Database::GetColCount()
 }
 void Database::GetTypeInfo()
 {
-	qstate = mysql_query(conn, "DESCRIBE test");
+	qstate = mysql_query(conn, "DESCRIBE user");
 	if (!qstate)
 	{
 		res = mysql_store_result(conn);
@@ -146,7 +146,7 @@ void Database::LoadClientFromTable(string _login, string _password, int _role) /
 	}
 	else cout << "Query failed: " << mysql_error(conn) << endl;*/
 	string s;
-	qstate = mysql_query(conn, "SELECT * FROM users");
+	qstate = mysql_query(conn, "SELECT * FROM user");
 	if (!qstate)
 	{
 		res = mysql_store_result(conn);
@@ -168,19 +168,25 @@ UserConnection Database::xLoadUserFromTable(string _login, string _password)
 {
 	string s;
 	UserConnection user;
-	qstate = mysql_query(conn, "SELECT * FROM users");
+	qstate = mysql_query(conn, "SELECT * FROM user");
 	if (!qstate)
 	{
 		res = mysql_store_result(conn);
 		while (row = mysql_fetch_row(res))
 		{
-			//cout << "LOGIN " << row[0] << "\t\t, PWD: " << row[1] << "\t, Role: " << row[2] << endl;
-			if ((row[0] == _login) && (row[1] == _password))
-			{
-				user.login = row[0];
-				user.password = row[1]; //потом переделать на хеш от пароля
-				s = row[2];
-				Client.role = atoi(s.c_str());
+			//cout << "LOGIN " << row[1] << "\t\t, PWD: " << row[2] << "\t, Role: " << row[3] << endl;
+			if ((row[1] == _login)){
+				user.user_id = atoi(row[0]);
+				user.login = row[1];
+				user.password = row[2]; //потом переделать на хеш от пароля
+				user.role = atoi(row[3]);
+				user.fullname = row[4];
+				user.phone = row[5];
+				user.position = row[6];
+				user.company = row[7];
+				user.photo = row[8];
+				user.device_id = row[9];
+
 			}
 		}
 	}

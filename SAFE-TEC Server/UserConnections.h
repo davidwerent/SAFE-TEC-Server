@@ -20,7 +20,7 @@ public:
     UserConnection();
     UserConnection(const UserConnection& data);
     UserConnection(std::string _login, std::string _password, int id);
-    std::string print();
+    void print();
     void setUserDataFromJSON(std::string stringofJSON);
     bool isValid();
 
