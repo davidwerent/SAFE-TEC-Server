@@ -117,19 +117,11 @@ int main()
              std::string answer = NewCommand(data, c);
              
              //std::cout << data->login << " " << data->password << std::endl;
-             ws->send(answer, uWS::OpCode::TEXT);
+             std::string answer{ message };
+             answer.append(" \nbut sorry i cant do it, yet ;(");
             
-             auto user_channel = "user#" + std::to_string(data->user_id);
-             //ws->publish("broadcast", answer);
-        },
-        .drain = [](auto* ws) {
-        
-        },
-        .ping= [](auto* ws, std::string_view pingmes) {
-
-        },
-        .pong = [](auto* ws, std::string_view pongmes) {
-
+               
+             ws->publish("broadcast", answer);
         },
         .close = [](auto* ws, int code, std::string_view message)
         {
