@@ -18,8 +18,8 @@ std::string NewCommand(UserConnection* user, std::string strjson);
 bool newauth(Json::Value json);
 
 std::string CreateResponseAuth();
-std::string CreateResponseSignUp(int code);
+std::string CreateResponseSignUp(int code, int userid);
 int SignUp(Json::Value json);
-
+int SignUp(Json::Value json, int &userid);
 
 

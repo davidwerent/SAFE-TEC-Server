@@ -8,6 +8,7 @@ Database::Database()
 	Client.login = "";
 	Client.password = "";
 	Client.role = 0;
+	Client.user_id = 0;
 	conn = mysql_init(0);
 	qstate = 0;
 	ActiveTableName = " ";
@@ -20,6 +21,7 @@ Database::Database(string IP, string login, string password, string dbname, int 
 	Client.role = 0;
 	ActiveTableName = "user";
 	qstate = 0;
+	error = 0;
 	conn = mysql_init(0);
 	conn = mysql_real_connect(conn, IP.c_str(), login.c_str(),
 		password.c_str(), dbname.c_str(), port, NULL, 0);
@@ -127,11 +129,11 @@ void Database::LoadClientFromTable(string _login, string _password, int _role) /
 		while (row = mysql_fetch_row(res))
 		{
 			//cout << "LOGIN " << row[0] << "\t\t, PWD: " << row[1] << "\t, Role: " << row[2] << endl;
-			if ((row[0] == _login) && (row[1] == _password))
+			if ((row[1] == _login))
 			{
-				Client.login = row[0];
-				s = row[2];
-				Client.role = atoi(s.c_str());
+				Client.login = row[1];
+				s = row[0];
+				Client.user_id = atoi(s.c_str());
 			}
 
 		}
@@ -172,11 +174,14 @@ UserConnection Database::xInsertToTable(string login, string password, string fu
 	UserConnection user;
 
 	
-	if (!CheckEmail(login)) cout << "no login found\n";
-	else {
-		//cout << "this login is already exist!!!!\n";
-		return user;
+	if (!CheckEmail(login)) {
+		cout << "no login found\n";
+		error = 0;
 	}
+	else {//cout << "this login is already exist!!!!\n";
+		error = 2;
+		return user;
+	} 
 	string sql_command = "INSERT INTO user(email, password, fullname, device_id) VALUES ('";
 	sql_command.append(login+"', '"+password+"', '"+fullname+"', '"+deviceID+"');");
 	/*example sql:
@@ -187,11 +192,11 @@ INSERT INTO user(email, password, fullname, device_id)
 		cout << "sql query success!\n";
 	}
 	else cout << "Query failed: " << mysql_error(conn) << endl;
-
-	
-
-
 	return user;
+}
+int Database::xGetUserId(std::string login)
+{
+	return 0;
 }
 void Database::ChangeActiveTable(string q)
 {
@@ -224,6 +229,7 @@ bool Database::CheckEmail(string _login)
 			}
 		}
 		return false;
+		error = 2;
 	}
 	else cout << "Query failed: " << mysql_error(conn) << endl;
 }

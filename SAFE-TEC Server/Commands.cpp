@@ -39,6 +39,7 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 		}
 	}
 	std::cout << json.toStyledString() << "\n";
+	int user_id_response = 0;
 	switch (command)
 	{
 	case COMMAND::error:
@@ -52,17 +53,17 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 		else cout << "auth FAILED!\n";
 		break;
 	case COMMAND::signUp:
-		if (SignUp(json)) {
+		if (SignUp(json,user_id_response)==0) {
 			std::cout << "registration complete\n";
-			return CreateResponseSignUp(1);
+			return CreateResponseSignUp(1,user_id_response);
 		}
 		else if (SignUp(json)==2) {
 			std::cout << "registration duplicated\n";
-			return CreateResponseSignUp(0);
+			return CreateResponseSignUp(0,0);
 		}
 		else {
 			std::cout << "registration code error #" << SignUp(json) << std::endl;
-			return CreateResponseSignUp(2);
+			return CreateResponseSignUp(2,0);
 		}
 		break;
 	case COMMAND::zone:
@@ -75,7 +76,7 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 }
 bool newauth(Json::Value json)
 {
-	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
+	Database s("localhost", "root", "admin", "userlist", 3306);
 	UserConnection user;
 	std::string login = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
@@ -98,7 +99,20 @@ std::string CreateResponseAuth()
 }
 int SignUp(Json::Value json)
 {
-	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
+	Database s("localhost", "root", "admin", "userlist", 3306);
+	UserConnection user;
+	std::string login	 = json["data"]["email"].asString();
+	std::string password = json["data"]["password"].asString();
+	std::string fullname = json["data"]["fullname"].asString();
+	std::string deviceId = json["data"]["deviceId"].asString();
+	//std::cout << "will write to SQL\n";
+	user = s.xInsertToTable(login, password, fullname, deviceId);
+	return s.GetError();
+	
+}
+int SignUp(Json::Value json, int &userid)
+{
+	Database s("localhost", "root", "admin", "userlist", 3306);
 	UserConnection user;
 	std::string login = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
@@ -106,17 +120,20 @@ int SignUp(Json::Value json)
 	std::string deviceId = json["data"]["deviceId"].asString();
 	//std::cout << "will write to SQL\n";
 	user = s.xInsertToTable(login, password, fullname, deviceId);
-	if (!s.CheckEmail(login)) return 1;
-	else if (s.GetQState()) return 2;
-	else return 0;
+	s.LoadClientFromTable(login, "",0);
+	userid = s.Client.user_id;
+	return s.GetError();
+
 }
-std::string CreateResponseSignUp(int code)
-{
+std::string CreateResponseSignUp(int code, int userid)
+{	
+	
 	Json::Value response;
-	response["status"] = 1;
+	response["status"] = code;
 	response["message"] = "its registation response";
-	if (code==1) response["data"]["register_status"] = "Accepted";
-	else if (code==0) response["data"]["register_status"] = "Duplicate";
-	else response["data"]["register_status"] = "Declined";
+	if (code==1)		response["data"]["register_status"] = "Accepted";
+	else if (code==0)	response["data"]["register_status"] = "Duplicate";
+	else				response["data"]["register_status"] = "Declined";
+	response["data"]["userId"] = userid;
 	return response.toStyledString();
 }

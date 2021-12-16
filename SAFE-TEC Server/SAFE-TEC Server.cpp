@@ -87,7 +87,7 @@ int main()
     //cout<<NewCommand(NULL, strjson2);
     //std::cout << "RESPONSE:\n" << CreateResponseAuth() << std::endl;
     //ws.send("{  \"method\": \"auth\",  \"data\": {    \"email\": \"alex@gmail.com\",    \"password\": \"qweASD123\",    \"deviceId\": \"HASJ2-009A-2933-12GASJJWQP{\"  }}");
-
+    //ws.send("{  \"method\": \"signUp\",  \"data\": {    \"email\": \"newuser@gmail.com\",    \"password\": \"qwerty\",    \"fullname\": \"Ivan Ivanov\",    \"deviceId\": \"00000-009A-0000-12GASJJWQP{\"  }}");
 
     uWS::App().ws<UserConnection>("/*", {
 
