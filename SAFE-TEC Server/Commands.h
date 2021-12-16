@@ -16,10 +16,12 @@ enum class COMMAND
 
 std::string NewCommand(UserConnection* user, std::string strjson);
 bool newauth(Json::Value json);
-
 std::string CreateResponseAuth();
-std::string CreateResponseSignUp(int code, int userid);
+
+
 int SignUp(Json::Value json);
 int SignUp(Json::Value json, int &userid);
+std::string CreateResponseSignUp(int code, int userid);
 
-
+Zone GetZone(Json::Value json, int &zoneid);
+std::string CreateResponseZone(Zone zone, int zoneid);

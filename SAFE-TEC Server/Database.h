@@ -13,6 +13,17 @@ struct ClientData
 	int role; //
 	int user_id;
 };
+struct Zone
+{
+	int zone_id;
+	string name; 
+	string description;
+	string address; 
+	string phone;
+	string photo;
+	string owner;
+	string managerST;
+};
 class Database
 {
 	MYSQL* conn;
@@ -27,8 +38,10 @@ class Database
 	int SQLtoint(MYSQL_ROW m);
 public:
 	ClientData Client;
+	Zone zone;
 	Database();
 	Database(string IP, string login, string password, string dbname, int port);
+	Database(string IP, string login, string password, string dbname, string table_name, int port);
 	void printQuery(string q);
 	void CreateTable(string name);
 	void test(string name);
@@ -40,6 +53,7 @@ public:
 	void GetTypeInfo();
 	void LoadClientFromTable(string _login, string _password, int _role);
 	UserConnection xLoadUserFromTable(string _login, string _password);
+	Zone xLoadZoneFromTable(string owner);
 	UserConnection xInsertToTable(string login, string password, string fullname, string deviceID);
 	int xGetUserId(std::string login);
 	bool isLogin();

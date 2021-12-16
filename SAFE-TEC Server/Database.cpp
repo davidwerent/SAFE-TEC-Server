@@ -33,6 +33,25 @@ Database::Database(string IP, string login, string password, string dbname, int 
 		cout << "Failed CLASS connection!\n"; isConnect = false;
 	}
 }
+Database::Database(string IP, string login, string password, string dbname, string table_name, int port)
+{
+	Client.login = "";
+	Client.password = "";
+	Client.role = 0;
+	ActiveTableName = table_name;
+	qstate = 0;
+	error = 0;
+	conn = mysql_init(0);
+	conn = mysql_real_connect(conn, IP.c_str(), login.c_str(),
+		password.c_str(), dbname.c_str(), port, NULL, 0);
+	if (conn) {
+		//cout << "Connection with SQL server is good!\n"; 
+		isConnect = true;
+	}
+	else {
+		cout << "Failed CLASS connection!\n"; isConnect = false;
+	}
+}
 void Database::printQuery(string q)
 {
 	qstate = mysql_query(conn, q.c_str());
@@ -152,22 +171,39 @@ UserConnection Database::xLoadUserFromTable(string _login, string _password)
 		{
 			//cout << "LOGIN " << row[1] << "\t\t, PWD: " << row[2] << "\t, Role: " << row[3] << endl;
 			if ((row[1] == _login)){
-				user.user_id = atoi(row[0]);
-				user.login = row[1];
-				user.password = row[2]; //потом переделать на хеш от пароля
-				user.role = atoi(row[3]);
-				user.fullname = row[4];
-				user.phone = row[5];
-				user.position = row[6];
-				user.company = row[7];
-				user.photo = row[8];
-				user.device_id = row[9];
+				user.user_id	= atoi(row[0]);
+				user.login		= row[1];
+				user.password	= row[2]; //потом переделать на хеш от пароля
+				user.role		= atoi(row[3]);
+				user.fullname	= row[4];
+				user.phone		= row[5];
+				user.position	= row[6];
+				user.company	= row[7];
+				user.photo		= row[8];
+				user.device_id	= row[9];
 
 			}
 		}
 	}
 	else cout << "Query failed: " << mysql_error(conn) << endl;
 	return user;
+}
+Zone Database::xLoadZoneFromTable(string owner)
+{
+	Zone zone;
+	qstate = mysql_query(conn, "SELECT * FROM zones");
+	if (!qstate) {
+		res = mysql_store_result(conn);
+		while (row = mysql_fetch_row(res))
+		{
+			zone.name = row[1];
+			zone.description = row[2];
+			zone.address = row[3];
+		}
+	}
+
+
+	return zone;
 }
 UserConnection Database::xInsertToTable(string login, string password, string fullname, string deviceID)
 {

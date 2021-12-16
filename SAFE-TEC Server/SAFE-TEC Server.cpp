@@ -13,8 +13,9 @@ ws.send("somecommand");
 */
 int main()
 {
+    setlocale(LC_ALL, "Russian");
     int port = 1457;
-    unsigned long latest_user_id = 0;
+    unsigned long latest_user_id = 1;
     std::string strjson = R"({ 
   "Authorize": {
     "login"     : "admin",
@@ -117,7 +118,7 @@ int main()
              std::string answer = NewCommand(data, c);
              
              //std::cout << data->login << " " << data->password << std::endl;
-             ws->send(answer, uWS::OpCode::TEXT);
+             ws->send(answer, uWS::OpCode::BINARY);
             
              auto user_channel = "user#" + std::to_string(data->user_id);
              //ws->publish("broadcast", answer);

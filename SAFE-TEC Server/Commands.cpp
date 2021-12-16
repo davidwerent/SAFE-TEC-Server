@@ -26,7 +26,7 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 				command = COMMAND::auth;
 			else if (method == "signUp")
 				command = COMMAND::signUp;
-			else if (method == "zone")
+			else if (method == "zones")
 				command = COMMAND::zone;
 
 			//use else-if next for new command (method from JSON)
@@ -40,6 +40,8 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 	}
 	std::cout << json.toStyledString() << "\n";
 	int user_id_response = 0;
+	int zone_id_response = 0;
+	Zone z;
 	switch (command)
 	{
 	case COMMAND::error:
@@ -67,7 +69,10 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 		}
 		break;
 	case COMMAND::zone:
-
+		std::cout << "zone method requested\n";
+		
+		z=GetZone(json, zone_id_response);
+		return CreateResponseZone(z, 1);
 		break;
 	default:
 		return "error#1";
@@ -76,7 +81,7 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 }
 bool newauth(Json::Value json)
 {
-	Database s("localhost", "root", "admin", "userlist", 3306);
+	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
 	UserConnection user;
 	std::string login = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
@@ -99,7 +104,7 @@ std::string CreateResponseAuth()
 }
 int SignUp(Json::Value json)
 {
-	Database s("localhost", "root", "admin", "userlist", 3306);
+	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
 	UserConnection user;
 	std::string login	 = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
@@ -112,7 +117,7 @@ int SignUp(Json::Value json)
 }
 int SignUp(Json::Value json, int &userid)
 {
-	Database s("localhost", "root", "admin", "userlist", 3306);
+	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
 	UserConnection user;
 	std::string login = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
@@ -137,3 +142,40 @@ std::string CreateResponseSignUp(int code, int userid)
 	response["data"]["userId"] = userid;
 	return response.toStyledString();
 }
+
+Zone GetZone(Json::Value json, int &zoneid)
+{
+	
+	Database s("localhost", "root", "Gudini2306%", "zone", "zones", 3306);
+	Zone zone = s.xLoadZoneFromTable(json["data"]["owner"].asString());
+	
+
+
+	return zone;
+}
+
+std::string CreateResponseZone(Zone zone, int zoneid)
+{
+	Json::Value response;
+	
+	response["status"] = 1;
+	response["message"] = "строка из с++";
+	response["data"]["name"] = zone.name;
+	response["data"]["description"] = zone.description;
+	response["data"]["address"] = zone.address;
+	response["data"]["phone"] = zone.phone;
+	response["data"]["photo"] = zone.photo;
+	response["data"]["owner"] = zone.owner;
+	response["data"]["managerST"] = zone.managerST;
+	response["data"]["zoneID"] = zone.zone_id;
+			
+		
+	
+	
+	
+	
+
+	return response.toStyledString();
+}
+
+
