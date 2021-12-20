@@ -26,4 +26,3 @@ public:
 
 
 };
-void RunCommand(std::string command);

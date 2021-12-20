@@ -4,13 +4,35 @@
 #include <json/json.h>
 #include "UserConnections.h"
 #include "Database.h"
+#include "Error.h"
 #include "Commands.h"
+#include <windows.h>
+#include <tchar.h>
+
 //#include "C:\\cpp\\json-develop\\include\\nlohmann\\json.hpp"
 /*
 ws = new WebSocket("ws://localhost:8888/");
 ws.onmessage=({data})=>console.log(data);
 ws.send("somecommand");
 */
+void SetLucidaFont()
+{
+    HANDLE StdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_FONT_INFOEX info;
+    memset(&info, 0, sizeof(CONSOLE_FONT_INFOEX));
+    info.cbSize = sizeof(CONSOLE_FONT_INFOEX);              // prevents err=87 below
+    if (GetCurrentConsoleFontEx(StdOut, FALSE, &info))
+    {
+        info.FontFamily = FF_DONTCARE;
+        info.dwFontSize.X = 0;  // leave X as zero
+        info.dwFontSize.Y = 14;
+        info.FontWeight = 400;
+        _tcscpy_s(info.FaceName, L"Lucida Console");
+        if (SetCurrentConsoleFontEx(StdOut, FALSE, &info))
+        {
+        }
+    }
+};
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -74,10 +96,12 @@ int main()
     Json::Value root;
     Json::Reader reader;
 
+
+
     
 
     std::string strjson2 = R"({
-  "method": "auth",
+  "method": "systems",
   "data": { 
     "email": "alex@gmail.com",
     "password": "qweASD123",
@@ -85,11 +109,21 @@ int main()
   }
 }
 )";
-    //cout<<NewCommand(NULL, strjson2);
-    //std::cout << "RESPONSE:\n" << CreateResponseAuth() << std::endl;
+   /* bool parsing = reader.parse(strjson2.c_str(), root);
+    if (!parsing) {
+        std::cout << "Failed to parse " << reader.getFormattedErrorMessages() << std::endl;
+    }
+    ErrorLog::jsonerr = root;
+    ErrorLog log(ErrorLog::jsonerr);
+    std::cout << log.GetJson().toStyledString() << std::endl;*/
+    
+
+
+    // Java команды для клиента из браузера
     //ws.send("{  \"method\": \"auth\",  \"data\": {    \"email\": \"alex@gmail.com\",    \"password\": \"qweASD123\",    \"deviceId\": \"HASJ2-009A-2933-12GASJJWQP{\"  }}");
     //ws.send("{  \"method\": \"signUp\",  \"data\": {    \"email\": \"newuser@gmail.com\",    \"password\": \"qwerty\",    \"fullname\": \"Ivan Ivanov\",    \"deviceId\": \"00000-009A-0000-12GASJJWQP{\"  }}");
-
+    //ws.send("{  \"method\": \"zones\", \"token\":\"tokenASISK2810AJSDJKGASLDK\",  \"data\": {    \"owner\": \"alex@gmail.com\"}}");
+    //ws.send("{  \"method\": \"systems\", \"token\":\"tokenASISK2810AJSDJKGASLDK\",  \"data\": {    \"zoneID\": 1 }}");
     uWS::App().ws<UserConnection>("/*", {
 
         .compression = uWS::DISABLED,
@@ -118,7 +152,7 @@ int main()
              std::string answer = NewCommand(data, c);
              
              //std::cout << data->login << " " << data->password << std::endl;
-             ws->send(answer, uWS::OpCode::BINARY);
+             ws->send(answer, uWS::OpCode::TEXT);
             
              auto user_channel = "user#" + std::to_string(data->user_id);
              //ws->publish("broadcast", answer);
@@ -138,8 +172,10 @@ int main()
             std::cout << "User #" << data->user_id << " has disconnected!\n";
         },
         }).listen(port, [&port](auto* token) {
-            if (token)
+            if (token) {
+               // std::cout << "\n\n\n\n\n\n\n\n\n\n";
                 std::cout << "Server started successfully on port " << port << std::endl;
+            }
             else std::cout << "Server failed to start" << std::endl;
             }).run();
           

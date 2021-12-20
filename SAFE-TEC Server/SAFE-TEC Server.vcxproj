@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Database.cpp" />
+    <ClCompile Include="Error.cpp" />
     <ClCompile Include="json_reader.cpp" />
     <ClCompile Include="json_value.cpp" />
     <ClCompile Include="json_writer.cpp" />
@@ -157,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Database.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UserConnections.h" />
   </ItemGroup>

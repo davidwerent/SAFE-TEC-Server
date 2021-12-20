@@ -188,20 +188,33 @@ UserConnection Database::xLoadUserFromTable(string _login, string _password)
 	else cout << "Query failed: " << mysql_error(conn) << endl;
 	return user;
 }
-Zone Database::xLoadZoneFromTable(string owner)
+vector<Zone> Database::xLoadZoneFromTable(string owner)
 {
-	Zone zone;
-	qstate = mysql_query(conn, "SELECT * FROM zones");
+	
+	vector<Zone> zone;
+	string q = "SELECT * FROM zones WHERE owner='";
+	q.append(owner);
+	q.append("';");
+	cout << "Q=" << q << endl;
+	qstate = mysql_query(conn, q.c_str());
 	if (!qstate) {
 		res = mysql_store_result(conn);
 		while (row = mysql_fetch_row(res))
 		{
-			zone.name = row[1];
-			zone.description = row[2];
-			zone.address = row[3];
+			Zone temp;
+			temp.zone_id	 = atoi(row[0]);
+			temp.name		 = row[1];
+			temp.description = row[2];
+			temp.address	 = row[3];
+			temp.phone		 = row[4];
+			temp.photo		 = row[5];
+			temp.owner		 = row[6];
+			temp.managerST	 = row[7];
+			zone.push_back(temp);			
 		}
 	}
-
+	
+	cout << "zone by " << owner << " is: " << zone.size() << " times\n";
 
 	return zone;
 }
@@ -234,6 +247,42 @@ int Database::xGetUserId(std::string login)
 {
 	return 0;
 }
+
+vector<System> Database::xLoadSystemFromTable(int zoneid)
+{
+	vector <System> system;
+	string q = "SELECT * FROM systemtable WHERE zone_id=";
+	q.append(to_string(zoneid));
+	cout << "Q=" << q << endl;
+	qstate = mysql_query(conn, q.c_str());
+	if (!qstate)
+	{
+		res = mysql_store_result(conn);
+		while (row = mysql_fetch_row(res))
+		{
+			System temp;
+			temp.system_id			= atoi(row[0]);
+			temp.name				= row[1];
+			temp.serialNumber		= row[2];
+			temp.height				= atoi(row[3]);
+			temp.length				= atoi(row[4]);
+			temp.access				= atoi(row[5]);
+			temp.startOperationDate = row[6];
+			temp.lastSeenDate		= row[7];
+			temp.description		= row[8];
+			temp.zone_id			= atoi(row[9]);
+			system.push_back(temp);
+		}
+	}
+	for (int i = 0; i < system.size(); i++)
+		cout << system[i].system_id << " - " << system[i].name << " - " << system[i].zone_id << endl;
+
+	return system;
+}
+
+
+
+
 void Database::ChangeActiveTable(string q)
 {
 	ActiveTableName = q;

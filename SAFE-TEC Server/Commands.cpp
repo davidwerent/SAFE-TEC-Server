@@ -21,27 +21,33 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 	for (int i = 0; i < types_of_json.size(); i++) {
 		if (types_of_json[i] == "method")
 		{
-			auto method = json["method"].asString();
-			if (method == "auth")
-				command = COMMAND::auth;
-			else if (method == "signUp")
-				command = COMMAND::signUp;
-			else if (method == "zones")
-				command = COMMAND::zone;
+			try {
+				auto method = json["method"].asString();
+				if (method == "auth")
+					command = COMMAND::auth;
+				else if (method == "signUp")
+					command = COMMAND::signUp;
+				else if (method == "zones")
+					command = COMMAND::zone;
+				else if (method == "systems")
+					command = COMMAND::system;
 
-			//use else-if next for new command (method from JSON)
-			// add new method to enum class COMMAND and create func call in SWITCH(COMMAND) below
-			//##################################################
-			else {
+
+				//use else-if next for new command (method from JSON)
+				// add new method to enum class COMMAND and create func call in SWITCH(COMMAND) below
+				//##################################################
+				else throw 2;
+			}
+			catch (int) {
 				command = COMMAND::error;
-				//придумать обработчик ошибок 
 			}
 		}
 	}
 	std::cout << json.toStyledString() << "\n";
 	int user_id_response = 0;
 	int zone_id_response = 0;
-	Zone z;
+	vector<Zone> z;
+	vector<System> s;
 	switch (command)
 	{
 	case COMMAND::error:
@@ -50,9 +56,12 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 	case COMMAND::auth:
 		if (newauth(json)) {
 			std::cout << "auth complete!\n";
-			return CreateResponseAuth();
+			return CreateResponseAuth(1);
 		}
-		else cout << "auth FAILED!\n";
+		else {
+			cout << "auth FAILED!\n";
+			return CreateResponseAuth(0);
+		}
 		break;
 	case COMMAND::signUp:
 		if (SignUp(json,user_id_response)==0) {
@@ -74,6 +83,12 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 		z=GetZone(json, zone_id_response);
 		return CreateResponseZone(z, 1);
 		break;
+	case COMMAND::system:
+		std::cout << "system method requested\n";
+
+		s = GetSystem(json, zone_id_response); //не уверен что тут должна быть та же переменная а не отдельная или вызов из json
+		return CreateResponseSystem(s, 1);
+		break;
 	default:
 		return "error#1";
 		break;
@@ -81,9 +96,10 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 }
 bool newauth(Json::Value json)
 {
-	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
+	ErrorLog::noError = json;
+	Database s("localhost", "root", DB_PASSWORD, "userlist", 3306);
 	UserConnection user;
-	std::string login = json["data"]["email"].asString();
+	std::string login	 = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
 	std::string deviceId = json["data"]["deviceId"].asString();
 	std::cout << "will loaded from sql\n";
@@ -94,17 +110,43 @@ bool newauth(Json::Value json)
 	if ((user.login == login) && (user.password == password)) return true;
 	else return false;
 }
-std::string CreateResponseAuth()
+std::string CreateResponseAuth(bool auth)
 {
-	Json::Value response;
-	response["status"] = 1;
-	response["message"] = "Log in success!\n";
+	ErrorLog log(ErrorLog::noError);
+	/*Json::Value response;
+	if (auth) {
+		response["status"] = 1;
+		response["message"] = "Log in success!\n";
+	}
+	else {
+		response["status"] = 0;
+		response["message"] = "Auth failed\n";
+	}
 	response["data"]["token"] = "tokenGU8ZHVBPWSSSJ98";
-	return response.toStyledString();
+	return response.toStyledString();*/
+	Json::Value response;
+	Json::Value temp = log.GetJson();
+	if (auth) {
+		response["data"]["token"] = "tokenGU8ZHBHSJAKSDJ";
+		update(response, temp);
+		std::cout << response.toStyledString() << std::endl;
+		return response.toStyledString();
+	}
+	else
+	{
+		log.ERROR_CODE = 2;
+		log.ERROR_MESSAGE = "auth failed!";
+		temp = log.GetJson();
+		response["data"]["token"] = "tokenGU8ZHBHSJAKSDJ";
+		update(response, temp);
+		std::cout << response.toStyledString() << std::endl;
+		return response.toStyledString();
+	}
 }
 int SignUp(Json::Value json)
 {
-	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
+	ErrorLog::noError = json;
+	Database s("localhost", "root", DB_PASSWORD, "userlist", 3306);
 	UserConnection user;
 	std::string login	 = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
@@ -117,9 +159,10 @@ int SignUp(Json::Value json)
 }
 int SignUp(Json::Value json, int &userid)
 {
-	Database s("localhost", "root", "Gudini2306%", "userlist", 3306);
+	ErrorLog::noError = json;
+	Database s("localhost", "root", DB_PASSWORD, "userlist", 3306);
 	UserConnection user;
-	std::string login = json["data"]["email"].asString();
+	std::string login	 = json["data"]["email"].asString();
 	std::string password = json["data"]["password"].asString();
 	std::string fullname = json["data"]["fullname"].asString();
 	std::string deviceId = json["data"]["deviceId"].asString();
@@ -132,50 +175,120 @@ int SignUp(Json::Value json, int &userid)
 }
 std::string CreateResponseSignUp(int code, int userid)
 {	
+	ErrorLog log(ErrorLog::noError);
+	Json::Value jlog = log.GetJson();
 	
+
 	Json::Value response;
-	response["status"] = code;
-	response["message"] = "its registation response";
-	if (code==1)		response["data"]["register_status"] = "Accepted";
-	else if (code==0)	response["data"]["register_status"] = "Duplicate";
-	else				response["data"]["register_status"] = "Declined";
+	//response["status"] = code;
+	//response["message"] = "its registation response";
+	if (code == 1) {
+		jlog = log.GetJsonSuccess();
+		response["data"]["register_status"] = "Accepted";
+		update(response, jlog);
+		std::cout << response.toStyledString() << std::endl;
+		return response.toStyledString();
+	}
+	else if (code == 0) {
+		log.ERROR_CODE = 3;
+		log.ERROR_MESSAGE = "This email is already exist! Registration Failed!"; 
+		jlog = log.GetJson();
+		response["data"]["register_status"] = "Duplicate";
+		update(response, jlog);
+		std::cout << response.toStyledString() << std::endl;
+		return response.toStyledString();
+	}
+	else {
+		log.ERROR_CODE = 4;
+		log.ERROR_MESSAGE = "Registration failed. Ask an administrator";
+		jlog = log.GetJson();
+		response["data"]["register_status"] = "Declined";
+		update(response, jlog);
+		std::cout << response.toStyledString() << std::endl;
+		return response.toStyledString();
+
+	}
 	response["data"]["userId"] = userid;
 	return response.toStyledString();
 }
 
-Zone GetZone(Json::Value json, int &zoneid)
+vector<Zone> GetZone(Json::Value json, int &zoneid)
 {
 	
-	Database s("localhost", "root", "Gudini2306%", "zone", "zones", 3306);
-	Zone zone = s.xLoadZoneFromTable(json["data"]["owner"].asString());
+	Database s("localhost", "root", DB_PASSWORD, "zone", "zones", 3306);
+	vector<Zone> zone = s.xLoadZoneFromTable(json["data"]["owner"].asString());
 	
 
 
 	return zone;
 }
 
-std::string CreateResponseZone(Zone zone, int zoneid)
+std::string CreateResponseZone(vector<Zone> zone, int zoneid)
 {
 	Json::Value response;
-	
+	Json::Value zres; //zone response
 	response["status"] = 1;
-	response["message"] = "строка из с++";
-	response["data"]["name"] = zone.name;
-	response["data"]["description"] = zone.description;
-	response["data"]["address"] = zone.address;
-	response["data"]["phone"] = zone.phone;
-	response["data"]["photo"] = zone.photo;
-	response["data"]["owner"] = zone.owner;
-	response["data"]["managerST"] = zone.managerST;
-	response["data"]["zoneID"] = zone.zone_id;
-			
-		
-	
-	
-	
-	
-
+	response["message"] = "list of zones by email";
+	for (int i = 0; i < zone.size(); i++)
+	{
+		zres["zoneID"]		= zone[i].zone_id;
+		zres["name"]		= zone[i].name;
+		zres["description"] = zone[i].description;
+		zres["address"]		= zone[i].address;
+		zres["phone"]		= zone[i].phone;
+		zres["photo"]		= zone[i].photo;
+		zres["owner"]		= zone[i].owner;
+		zres["managerST"]	= zone[i].managerST;
+		response["data"]["zones"].append(zres);
+	}
+	//std::cout << "TOTAL JSON BELOW=========\n";
+	//std::cout << response.toStyledString();
 	return response.toStyledString();
 }
 
+vector<System> GetSystem(Json::Value json, int& zoneid)
+{
+	Database s("localhost", "root", DB_PASSWORD, "systems", "systemstable", 3306);
+	vector <System> system = s.xLoadSystemFromTable(json["data"]["zoneID"].asInt());
 
+	return system;
+}
+
+std::string CreateResponseSystem(vector<System> system, int zoneid)
+{
+	Json::Value response;
+	Json::Value system_response;
+	response["status"] = 1;
+	response["message"] = "list of systems by zoneID";
+	for (int i = 0; i < system.size(); i++)
+	{
+		system_response["systemID"]			  = system[i].system_id;
+		system_response["name"]				  = system[i].name;
+		system_response["serialNumber"]		  = system[i].serialNumber;
+		system_response["height"]			  = system[i].height;
+		system_response["length"]			  = system[i].length;
+		system_response["access"]			  = system[i].access;
+		system_response["startOperationDate"] = system[i].startOperationDate;
+		system_response["lastSeenDate"]		  = system[i].lastSeenDate;
+		system_response["description"]		  = system[i].description;
+		system_response["zone_id"]			  = system[i].zone_id;
+		response["data"]["systems"].append(system_response);
+	}
+
+	std::cout << "FULL JSON BELOW=============\n";
+	std::cout << response.toStyledString() << endl;
+	return response.toStyledString();
+}
+
+void update(Json::Value& a, Json::Value& b) {
+	
+
+	for (const auto& key : b.getMemberNames()) {
+		if (a[key].type() == Json::objectValue && b[key].type() == Json::objectValue) {
+			update(a[key], b[key]);
+		}
+		else {
+			a[key] = b[key];
+		}
+	}
+}

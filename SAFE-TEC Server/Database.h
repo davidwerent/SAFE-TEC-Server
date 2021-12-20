@@ -23,6 +23,20 @@ struct Zone
 	string photo;
 	string owner;
 	string managerST;
+	int zone_count;
+};
+struct System
+{
+	int system_id;
+	string name;
+	string serialNumber;
+	int height;
+	int length;
+	int access;
+	string startOperationDate;
+	string lastSeenDate;
+	string description;
+	int zone_id;
 };
 class Database
 {
@@ -53,9 +67,10 @@ public:
 	void GetTypeInfo();
 	void LoadClientFromTable(string _login, string _password, int _role);
 	UserConnection xLoadUserFromTable(string _login, string _password);
-	Zone xLoadZoneFromTable(string owner);
+	vector<Zone> xLoadZoneFromTable(string owner);
 	UserConnection xInsertToTable(string login, string password, string fullname, string deviceID);
 	int xGetUserId(std::string login);
+	vector<System> xLoadSystemFromTable(int zoneid);
 	bool isLogin();
 	bool isConnected();
 	bool CheckEmail(string _login);
