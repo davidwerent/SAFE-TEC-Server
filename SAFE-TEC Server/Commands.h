@@ -5,8 +5,9 @@
 #include <json/json.h>
 #include <vector>
 #include "Error.h"
+#include "jwt/jwt.hpp"
 #define DB_PASSWORD "admin"
-
+using namespace jwt::params;
 
 enum class COMMAND
 {

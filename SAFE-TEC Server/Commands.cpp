@@ -9,11 +9,47 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 	std::string login, password;
 	bool parsing = reader.parse(strjson.c_str(), json);
 	if (!parsing) {
-		std::cout << "Failed to parse " << reader.getFormattedErrorMessages() << std::endl;
-		COMMAND::error;
-		return "";
+		//std::cout << "Failed to parse " << reader.getFormattedErrorMessages() << std::endl;
+		//COMMAND::error;
+		//return "";
+
+
+		auto key = "secret";
+		try {
+			auto dec_token = jwt::decode(strjson, algorithms({ "HS256" }), secret(key), verify(true));
+			std::string str_header = dec_token.header().create_json_obj().dump();
+			std::string str_payload = dec_token.payload().create_json_obj().dump();
+			Json::Value jwt_header;
+			parsing = reader.parse(str_header.c_str(), jwt_header);
+			if (!parsing) {
+				std::cout << "Failed to parse header JWT " << reader.getFormattedErrorMessages() << std::endl;
+				return "";
+			}
+			Json::Value jwt_payload;
+			parsing = reader.parse(str_payload.c_str(), jwt_payload);
+			if (!parsing) {
+				std::cout << "Failed to parse payload JWT " << reader.getFormattedErrorMessages() << std::endl;
+				return "";
+			}
+			std::cout << jwt_header.toStyledString() << "\n" << jwt_payload.toStyledString() << std::endl;
+			std::error_code ec;
+			std::map<std::string, std::string> m;
+			m["method"] = "jwt method";
+			jwt::jwt_object check_token{ algorithm("HS256"), payload(m), secret(key) };
+			auto enc_str = check_token.signature();
+			std::cout << "INPUT: " << strjson << std::endl;
+			std::cout << "CHECK: " << enc_str << std::endl;
+			if (strjson == enc_str) std::cout << "its equal\n";
+		}
+		catch (const jwt::InvalidSignatureError& e) {
+			std::cout << "Invalid Secret Key (SignatureError)\n";
+			return "";
+		}
+		return "0123";
+		
 	}
 	std::vector<std::string> types_of_json;
+
 	for (int i = 0; i < json.size(); i++) {
 		std::cout << i << " - " << json.getMemberNames()[i] << "\n";
 		types_of_json.push_back(json.getMemberNames()[i]);

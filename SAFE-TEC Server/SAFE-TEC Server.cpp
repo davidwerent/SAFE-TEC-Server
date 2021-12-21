@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <uwebsockets/App.h>
 #include <string>
+#include <string_view>
 #include <json/json.h>
 #include "UserConnections.h"
 #include "Database.h"
@@ -8,13 +9,16 @@
 #include "Commands.h"
 #include <windows.h>
 #include <tchar.h>
-
+#include "jwt/jwt.hpp"
+#include <map>
 //#include "C:\\cpp\\json-develop\\include\\nlohmann\\json.hpp"
 /*
 ws = new WebSocket("ws://localhost:8888/");
 ws.onmessage=({data})=>console.log(data);
 ws.send("somecommand");
 */
+
+using namespace jwt::params;
 void SetLucidaFont()
 {
     HANDLE StdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -95,12 +99,8 @@ int main()
 })";
     Json::Value root;
     Json::Reader reader;
-
-
-
     
-
-    std::string strjson2 = R"({
+    std::string_view strjson2 = R"({
   "method": "systems",
   "data": { 
     "email": "alex@gmail.com",
@@ -109,6 +109,20 @@ int main()
   }
 }
 )";
+    map <string, string> m;
+    m["method"] = "jwt method";
+    auto key = "secret";
+    jwt::jwt_object obj{ algorithm("HS256"),payload(m),secret(key) };
+    auto enc_str = obj.signature(); //encode
+    std::cout << enc_str << std::endl;
+    //decode
+    auto dec_obj = jwt::decode(enc_str, algorithms({ "HS256" }), secret(key));
+    std::cout << dec_obj.header() << " - is header\n";
+    std::cout << dec_obj.payload() << " - is payload\n";
+
+
+    
+
    /* bool parsing = reader.parse(strjson2.c_str(), root);
     if (!parsing) {
         std::cout << "Failed to parse " << reader.getFormattedErrorMessages() << std::endl;

@@ -82,7 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\cpp\jsoncpp-master\include;C:\cpp\json-develop\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\cpp\cpp-jwt-master\include;C:\cpp\jsoncpp-master\include;C:\cpp\json-develop\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
