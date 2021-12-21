@@ -214,21 +214,21 @@ std::string CreateResponseSignUp(int code, int userid)
 
 vector<Zone> GetZone(Json::Value json, int &zoneid)
 {
-	
+	ErrorLog::noError = json;
 	Database s("localhost", "root", DB_PASSWORD, "zone", "zones", 3306);
 	vector<Zone> zone = s.xLoadZoneFromTable(json["data"]["owner"].asString());
-	
-
-
 	return zone;
 }
 
 std::string CreateResponseZone(vector<Zone> zone, int zoneid)
 {
+	ErrorLog log(ErrorLog::noError);
+	
 	Json::Value response;
 	Json::Value zres; //zone response
-	response["status"] = 1;
-	response["message"] = "list of zones by email";
+	//response["status"] = 1;
+	//response["message"] = "list of zones by email";
+	
 	for (int i = 0; i < zone.size(); i++)
 	{
 		zres["zoneID"]		= zone[i].zone_id;
@@ -241,6 +241,8 @@ std::string CreateResponseZone(vector<Zone> zone, int zoneid)
 		zres["managerST"]	= zone[i].managerST;
 		response["data"]["zones"].append(zres);
 	}
+	Json::Value jlog = log.GetJson();
+	update(response, jlog);
 	//std::cout << "TOTAL JSON BELOW=========\n";
 	//std::cout << response.toStyledString();
 	return response.toStyledString();

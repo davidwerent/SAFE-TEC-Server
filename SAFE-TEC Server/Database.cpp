@@ -30,7 +30,10 @@ Database::Database(string IP, string login, string password, string dbname, int 
 		isConnect = true;
 	}
 	else {
-		cout << "Failed CLASS connection!\n"; isConnect = false;
+		cout << "Query failed: " << mysql_error(conn) << endl;
+		ErrorLog::ERROR_CODE = 9;
+		ErrorLog::ERROR_MESSAGE = "Cant open DB connection. Check login, password, and other parametres.";
+		isConnect = false;
 	}
 }
 Database::Database(string IP, string login, string password, string dbname, string table_name, int port)
@@ -49,7 +52,10 @@ Database::Database(string IP, string login, string password, string dbname, stri
 		isConnect = true;
 	}
 	else {
-		cout << "Failed CLASS connection!\n"; isConnect = false;
+		cout << "Query failed: " << mysql_error(conn) << endl;
+		ErrorLog::ERROR_CODE = 9;
+		ErrorLog::ERROR_MESSAGE = "Cant open DB connection. Check login, password, and other parametres.";
+		isConnect = false;
 	}
 }
 void Database::printQuery(string q)
@@ -185,7 +191,11 @@ UserConnection Database::xLoadUserFromTable(string _login, string _password)
 			}
 		}
 	}
-	else cout << "Query failed: " << mysql_error(conn) << endl;
+	else {
+		cout << "Query failed: " << mysql_error(conn) << endl;
+		ErrorLog::ERROR_CODE = 6;
+		ErrorLog::ERROR_MESSAGE = "Incorrect SQL query to database";
+	}
 	return user;
 }
 vector<Zone> Database::xLoadZoneFromTable(string owner)
@@ -202,16 +212,20 @@ vector<Zone> Database::xLoadZoneFromTable(string owner)
 		while (row = mysql_fetch_row(res))
 		{
 			Zone temp;
-			temp.zone_id	 = atoi(row[0]);
-			temp.name		 = row[1];
+			temp.zone_id = atoi(row[0]);
+			temp.name = row[1];
 			temp.description = row[2];
-			temp.address	 = row[3];
-			temp.phone		 = row[4];
-			temp.photo		 = row[5];
-			temp.owner		 = row[6];
-			temp.managerST	 = row[7];
-			zone.push_back(temp);			
+			temp.address = row[3];
+			temp.phone = row[4];
+			temp.photo = row[5];
+			temp.owner = row[6];
+			temp.managerST = row[7];
+			zone.push_back(temp);
 		}
+	}
+	else {
+		ErrorLog::ERROR_CODE = 5;
+		ErrorLog::ERROR_MESSAGE = "Incorrect SQL query to database";
 	}
 	
 	cout << "zone by " << owner << " is: " << zone.size() << " times\n";
@@ -240,7 +254,11 @@ INSERT INTO user(email, password, fullname, device_id)
 	if (!qstate) {
 		cout << "sql query success!\n";
 	}
-	else cout << "Query failed: " << mysql_error(conn) << endl;
+	else {
+		cout << "Query failed: " << mysql_error(conn) << endl;
+		ErrorLog::ERROR_CODE = 7;
+		ErrorLog::ERROR_MESSAGE = "Incorrect SQL query to database";
+	}
 	return user;
 }
 int Database::xGetUserId(std::string login)
@@ -274,6 +292,12 @@ vector<System> Database::xLoadSystemFromTable(int zoneid)
 			system.push_back(temp);
 		}
 	}
+	else {
+		cout << "Query failed: " << mysql_error(conn) << endl;
+		ErrorLog::ERROR_CODE = 7;
+		ErrorLog::ERROR_MESSAGE = "Incorrect SQL query to database";
+	}
+
 	for (int i = 0; i < system.size(); i++)
 		cout << system[i].system_id << " - " << system[i].name << " - " << system[i].zone_id << endl;
 

@@ -8,6 +8,7 @@
 #include "Commands.h"
 #include <windows.h>
 #include <tchar.h>
+#include "JSONWebToken.h"
 
 //#include "C:\\cpp\\json-develop\\include\\nlohmann\\json.hpp"
 /*
@@ -38,66 +39,12 @@ int main()
     setlocale(LC_ALL, "Russian");
     int port = 1457;
     unsigned long latest_user_id = 1;
-    std::string strjson = R"({ 
-  "Authorize": {
-    "login"     : "admin",
-    "password"  : "qwert",
-    "device_id" : "HD023-GHQPOG-ASDHJBKSA-ASDQ29311-912"
-  },
-  "SignIn": {
-    "login"     : "spiguzov@safe-tec.ru",
-    "password"  : "qwert123",
-    "user_id"   : "1239009998",
-    "device_id" : "HD023-GHQPOG-ASDHJBKSA-ASDQ29311-912"
-  },
-  "Profile"    : {
-    "email"    : "spiguzov@safe-tec.ru",
-    "role"     : 4,
-    "user_id"  : "10000056236",
-    "fullname" : "Semen Piguzov",
-    "phone"    : 79339990895,
-    "position" : "director",
-    "company"  : "PAO ROSNEFT",
-    "photo"    : "http://safe-tec.ru/photo/123.png"
-  },
-  "Zone" : {
-    "name"        : "Post ASN",
-    "description" : "some multiline text",
-    "address"     : "Moscow, Lucky street 19",
-    "phone"       : 74952520005,
-    "photo"       : "somelink",
-    "owner"       : "user_ID from Profile",
-    "managerST"   : "email of manager ST",
-    "zoneID"      : "unique zone ID",
-    "system"      : [ 
-    {
-      "name" : "SAFETROLL",
-      "description" : "ultra wide multiline text",
-      "photo" : "link",
-      "serialnumber" : "10000293NS",
-      "length" : 120,
-      "heigthaccess" : true,
-      "date_start" : "19.01.2020",
-      "date_inspection" : "20.01.2021",
-      "systemID" : "unique system ID"
-    }
-  ]
-    
-  },
-  "order" : {
-    "name"  : "JamieMantisShrimp",
-    "description"  : "Pacific Ocean",
-    "photo"    : true,
-    "isSolve" : false,
-    "zoneID"  : "1232712",
-    "systemID" : "123"
-  }
-})";
     Json::Value root;
     Json::Reader reader;
 
-
-
+    JSONWebToken jwt;
+    std::cout << jwt.base64_encode("asdqwe") << std::endl;
+    std::cout << jwt.base64_decode("YXNkcXdl") << std::endl;
     
 
     std::string strjson2 = R"({
