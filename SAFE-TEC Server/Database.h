@@ -69,6 +69,7 @@ public:
 	UserConnection xLoadUserFromTable(string _login, string _password);
 	vector<Zone> xLoadZoneFromTable(string owner);
 	UserConnection xInsertToTable(string login, string password, string fullname, string deviceID);
+	bool xInsertZoneToTable(Zone zone);
 	int xGetUserId(std::string login);
 	vector<System> xLoadSystemFromTable(int zoneid);
 	bool isLogin();

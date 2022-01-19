@@ -60,16 +60,16 @@ ErrorLog::ErrorLog(Json::Value json)
 Json::Value ErrorLog::GetJson()
 {
 	Json::Value res;
-	res["status_code"] = ERROR_CODE;
+	res["status"] = ERROR_CODE;
 	res["message"] = ERROR_MESSAGE;
 	return res;
 }
 
-Json::Value ErrorLog::GetJsonSuccess()
+Json::Value ErrorLog::GetJsonSuccess() // גûחûגאועסÿ הכÿ לועמהמג 
 {
 	Json::Value res;
 	res["message"] = message;
-	res["status_code"] = status_code;
+	res["status"] = status_code;
 	return res;
 }
 

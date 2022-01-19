@@ -149,6 +149,7 @@
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="Error.cpp" />
+    <ClCompile Include="Interface.cpp" />
     <ClCompile Include="json_reader.cpp" />
     <ClCompile Include="json_value.cpp" />
     <ClCompile Include="json_writer.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="Error.h" />
+    <ClInclude Include="Interface.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UserConnections.h" />
   </ItemGroup>

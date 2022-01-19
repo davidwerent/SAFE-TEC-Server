@@ -6,7 +6,7 @@
 #include <vector>
 #include "Error.h"
 #include "jwt/jwt.hpp"
-#define DB_PASSWORD "admin"
+#define DB_PASSWORD "Gudini2306%"
 using namespace jwt::params;
 
 enum class COMMAND
@@ -15,7 +15,8 @@ enum class COMMAND
 	auth = 1,
 	signUp = 2,
 	zone = 3,
-	system = 4
+	system = 4,
+	addzone = 5
 };
 
 std::string Error(int code);
@@ -36,3 +37,5 @@ vector <System> GetSystem(Json::Value json, int& zoneid);
 std::string CreateResponseSystem(vector<System> system, int zoneid);
 
 void update(Json::Value& a, Json::Value& b);
+
+int AddZone(Json::Value json);

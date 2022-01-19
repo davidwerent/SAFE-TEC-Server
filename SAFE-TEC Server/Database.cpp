@@ -243,6 +243,21 @@ INSERT INTO user(email, password, fullname, device_id)
 	else cout << "Query failed: " << mysql_error(conn) << endl;
 	return user;
 }
+bool Database::xInsertZoneToTable(Zone zone)
+{
+	string sql_command = "INSERT INTO zones(name,description,address,phone,owner,managerST) VALUES('";
+	sql_command.append(zone.name + "','" + zone.description + "','" + zone.address + "','" + zone.phone + "','" + zone.owner + "','" + zone.managerST + "');");
+	qstate = mysql_query(conn, sql_command.c_str());
+	if (!qstate) {
+		cout << "sql query success!\n";
+		return true;
+	}
+	else {
+		cout << "Query failed: " << mysql_error(conn) << endl;
+		return false;
+	}
+	
+}
 int Database::xGetUserId(std::string login)
 {
 	return 0;

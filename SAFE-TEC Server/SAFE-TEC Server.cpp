@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include "jwt/jwt.hpp"
+#include "Interface.h"
 #include <map>
 //#include "C:\\cpp\\json-develop\\include\\nlohmann\\json.hpp"
 /*
@@ -39,64 +40,12 @@ void SetLucidaFont()
 };
 int main()
 {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     setlocale(LC_ALL, "Russian");
-    int port = 1457;
-    unsigned long latest_user_id = 1;
-    std::string strjson = R"({ 
-  "Authorize": {
-    "login"     : "admin",
-    "password"  : "qwert",
-    "device_id" : "HD023-GHQPOG-ASDHJBKSA-ASDQ29311-912"
-  },
-  "SignIn": {
-    "login"     : "spiguzov@safe-tec.ru",
-    "password"  : "qwert123",
-    "user_id"   : "1239009998",
-    "device_id" : "HD023-GHQPOG-ASDHJBKSA-ASDQ29311-912"
-  },
-  "Profile"    : {
-    "email"    : "spiguzov@safe-tec.ru",
-    "role"     : 4,
-    "user_id"  : "10000056236",
-    "fullname" : "Semen Piguzov",
-    "phone"    : 79339990895,
-    "position" : "director",
-    "company"  : "PAO ROSNEFT",
-    "photo"    : "http://safe-tec.ru/photo/123.png"
-  },
-  "Zone" : {
-    "name"        : "Post ASN",
-    "description" : "some multiline text",
-    "address"     : "Moscow, Lucky street 19",
-    "phone"       : 74952520005,
-    "photo"       : "somelink",
-    "owner"       : "user_ID from Profile",
-    "managerST"   : "email of manager ST",
-    "zoneID"      : "unique zone ID",
-    "system"      : [ 
-    {
-      "name" : "SAFETROLL",
-      "description" : "ultra wide multiline text",
-      "photo" : "link",
-      "serialnumber" : "10000293NS",
-      "length" : 120,
-      "heigthaccess" : true,
-      "date_start" : "19.01.2020",
-      "date_inspection" : "20.01.2021",
-      "systemID" : "unique system ID"
-    }
-  ]
+    int port = 1456;
     
-  },
-  "order" : {
-    "name"  : "JamieMantisShrimp",
-    "description"  : "Pacific Ocean",
-    "photo"    : true,
-    "isSolve" : false,
-    "zoneID"  : "1232712",
-    "systemID" : "123"
-  }
-})";
+    unsigned long latest_user_id = 1;
+ 
     Json::Value root;
     Json::Reader reader;
     
@@ -138,7 +87,16 @@ int main()
     //ws.send("{  \"method\": \"signUp\",  \"data\": {    \"email\": \"newuser@gmail.com\",    \"password\": \"qwerty\",    \"fullname\": \"Ivan Ivanov\",    \"deviceId\": \"00000-009A-0000-12GASJJWQP{\"  }}");
     //ws.send("{  \"method\": \"zones\", \"token\":\"tokenASISK2810AJSDJKGASLDK\",  \"data\": {    \"owner\": \"alex@gmail.com\"}}");
     //ws.send("{  \"method\": \"systems\", \"token\":\"tokenASISK2810AJSDJKGASLDK\",  \"data\": {    \"zoneID\": 1 }}");
-    uWS::App().ws<UserConnection>("/*", {
+    //ws.send("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXRob2QiOiJqd3QgbWV0aG9kIn0.2hTaiqofhGCoTtXevv70hEXsPajjLkz-76MDyJsKAI0");
+    //ws.send("{  \"method\": \"addZone\",  \"data\": {    \"name\": \"new zone #1\",    \"description\": \"some multiline text will here lorem ipsum dolor si umet\", \"phone\": \"+79010001234\",  \"owner\": \"alex@gmail.com\",  \"managerST\": \"it@safe-tec.ru\"  }}");
+
+    uWS::SSLApp(
+        {
+            .key_file_name = "C:\\cpp\\key.pem",
+            .cert_file_name = "C:\\cpp\\certificate.pem",
+            .passphrase = "1234"
+        }
+    ).ws<UserConnection>("/*", {
 
         .compression = uWS::DISABLED,
         .maxPayloadLength = 16 * 1024 * 1024,
@@ -148,23 +106,20 @@ int main()
         .resetIdleTimeoutOnSend = true,
         .sendPingsAutomatically = false,
         .upgrade = nullptr,
-        .open = [&latest_user_id](auto* ws) {
+        .open = [&latest_user_id, &hConsole](auto* ws) {
             UserConnection* data = (UserConnection*)ws->getUserData();
             data->user_id=latest_user_id++;
-            std::cout << "New user connected #" <<data->user_id<< std::endl;
-            
-            ws->subscribe("broadcast");
-            ws->subscribe("user#" + std::to_string(data->user_id));
-            ws->publish("broadcast", "hello client!\n");
+            GREEN; std::cout << "New user connected #" << data->user_id << std::endl; WHITE;
+           
 
         },
         .message = [](auto* ws, std::string_view message, uWS::OpCode opCode) {
              UserConnection* data = (UserConnection*)ws->getUserData();
              std::string c{ message };
-             std::cout << message << std::endl;
+             //std::cout << message << std::endl;
              //RunCommand(data, c);
              std::string answer = NewCommand(data, c);
-             
+             //std::cout << data->login << "\n";
              //std::cout << data->login << " " << data->password << std::endl;
              ws->send(answer, uWS::OpCode::TEXT);
             
