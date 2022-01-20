@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "UserConnections.h"
+#include "Error.h"
 
 using namespace std;
 struct ClientData

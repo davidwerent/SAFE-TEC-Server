@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <fstream>
 #include "json/json.h"
 class ErrorLog
 {
@@ -18,5 +19,3 @@ public:
 	Json::Value	GetJsonSuccess();
 	
 };
-
-void example_error_in_func();

@@ -121,7 +121,7 @@ int main()
              std::string answer = NewCommand(data, c);
              //std::cout << data->login << "\n";
              //std::cout << data->login << " " << data->password << std::endl;
-             ws->send(answer, uWS::OpCode::TEXT);
+             ws->send(answer, uWS::OpCode::BINARY);
             
              auto user_channel = "user#" + std::to_string(data->user_id);
              //ws->publish("broadcast", answer);

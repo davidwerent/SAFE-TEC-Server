@@ -213,9 +213,7 @@ vector<Zone> Database::xLoadZoneFromTable(string owner)
 			zone.push_back(temp);			
 		}
 	}
-	
 	cout << "zone by " << owner << " is: " << zone.size() << " times\n";
-
 	return zone;
 }
 UserConnection Database::xInsertToTable(string login, string password, string fullname, string deviceID)

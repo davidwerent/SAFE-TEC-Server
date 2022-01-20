@@ -71,7 +71,6 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 			return log.GetJson().toStyledString();
 		}
 		return result;
-		
 	}
 	std::vector<std::string> types_of_json;
 
@@ -311,6 +310,12 @@ vector<Zone> GetZone(Json::Value json, int &zoneid)
 
 std::string CreateResponseZone(vector<Zone> zone, int zoneid)
 {
+	if (zone.empty()) {
+		ErrorLog log(ErrorLog::noError);
+		log.ERROR_CODE = 5;
+		log.ERROR_MESSAGE = "Incorrect SQL query to Database";
+		return log.GetJson().toStyledString();
+	}
 	Json::Value response;
 	Json::Value zres; //zone response
 	response["status"] = 1;
