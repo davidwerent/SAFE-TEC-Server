@@ -37,6 +37,7 @@ struct System
 	string startOperationDate;
 	string lastSeenDate;
 	string description;
+	string photo;
 	int zone_id;
 };
 class Database

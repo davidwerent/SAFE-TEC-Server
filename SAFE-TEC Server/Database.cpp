@@ -266,7 +266,7 @@ vector<System> Database::xLoadSystemFromTable(int zoneid)
 	vector <System> system;
 	string q = "SELECT * FROM systemtable WHERE zone_id=";
 	q.append(to_string(zoneid));
-	cout << "Q=" << q << endl;
+	//cout << "Q=" << q << endl;
 	qstate = mysql_query(conn, q.c_str());
 	if (!qstate)
 	{
@@ -283,12 +283,13 @@ vector<System> Database::xLoadSystemFromTable(int zoneid)
 			temp.startOperationDate = row[6];
 			temp.lastSeenDate		= row[7];
 			temp.description		= row[8];
-			temp.zone_id			= atoi(row[9]);
+			temp.photo				= row[9];
+			temp.zone_id			= atoi(row[10]);
 			system.push_back(temp);
 		}
 	}
-	for (int i = 0; i < system.size(); i++)
-		cout << system[i].system_id << " - " << system[i].name << " - " << system[i].zone_id << endl;
+	//for (int i = 0; i < system.size(); i++)
+		//cout << system[i].system_id << " - " << system[i].name << " - " << system[i].zone_id << endl;
 
 	return system;
 }

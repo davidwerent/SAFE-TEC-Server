@@ -16,7 +16,8 @@ enum class COMMAND
 	signUp = 2,
 	zone = 3,
 	system = 4,
-	addzone = 5
+	addzone = 5,
+	addsystem = 6
 };
 
 std::string Error(int code);
@@ -39,3 +40,7 @@ std::string CreateResponseSystem(vector<System> system, int zoneid);
 void update(Json::Value& a, Json::Value& b);
 
 int AddZone(Json::Value json);
+
+int AddSystem(Json::Value json);
+
+std::string CreateResponseError(std::string error, int code);

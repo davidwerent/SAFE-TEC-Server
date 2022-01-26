@@ -51,7 +51,7 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 			}
 			else
 			{
-				log.ERROR_CODE = 10;
+				log.ERROR_CODE = 11;
 				log.ERROR_MESSAGE = "wrong JWT";
 				return log.GetJson().toStyledString();
 			}
@@ -59,14 +59,14 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 		catch (const jwt::InvalidSignatureError& e) {
 			std::cout << "Invalid Secret Key (SignatureError)\n";
 			ErrorLog log(ErrorLog::noError);
-			log.ERROR_CODE = 11;
+			log.ERROR_CODE = 12;
 			log.ERROR_MESSAGE = "Invalid Secret Key(SignatureError)";
 			return log.GetJson().toStyledString();
 		}
 		catch (const jwt::SignatureFormatError& e) {
 			std::cout << e.what() << std::endl;
 			ErrorLog log(ErrorLog::noError);
-			log.ERROR_CODE = 12;
+			log.ERROR_CODE = 13;
 			log.ERROR_MESSAGE = e.what();
 			return log.GetJson().toStyledString();
 		}
@@ -93,6 +93,8 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 					command = COMMAND::system;
 				else if (method == "addZone")
 					command = COMMAND::addzone;
+				else if (method == "addSystem")
+					command = COMMAND::addsystem;
 
 
 				//use else-if next for new command (method from JSON)
@@ -146,26 +148,29 @@ std::string NewCommand(UserConnection* user, std::string strjson)
 		}
 		break;
 	case COMMAND::zone:
-		std::cout << "zone method requested\n";
-		
+		GREEN; std::cout << "zone method requested\n"; WHITE;
 		z=GetZone(json, zone_id_response);
+		YELLOW; std::cout << "JSON RESPONSE send to user:" << user->login << std::endl; WHITE;
 		return CreateResponseZone(z, 1);
 		break;
 	case COMMAND::system:
-		std::cout << "system method requested\n";
-
+		GREEN; std::cout << "system method requested\n"; WHITE;
 		s = GetSystem(json, zone_id_response); //не уверен что тут должна быть та же переменная а не отдельная или вызов из json
+		YELLOW; std::cout << "JSON RESPONSE send to user:" << user->login << std::endl; WHITE;
 		return CreateResponseSystem(s, 1);
 		break;
 	case COMMAND::addzone:
 		std::cout << "addzone method requested\n";
 		if (AddZone(json)) return "zone added complete\n";
 		else return "zone added failed!\n";
+		break;
+	case COMMAND::addsystem:
+		GREEN; std::cout << "addsystem method requested\n"; WHITE;
+
 
 		break;
-
 	default:
-		return "error#1";
+		return CreateResponseError("undefinitly method in JSON", 10);
 		break;
 	}
 }
@@ -218,6 +223,7 @@ std::string CreateResponseAuth(bool auth)
 		return response.toStyledString();
 	}
 }
+
 int SignUp(Json::Value json)
 {
 	ErrorLog::noError = json;
@@ -245,6 +251,17 @@ int AddZone(Json::Value json)
 	zone.managerST	= json["data"]["managerST"].asString();
 	if (s.xInsertZoneToTable(zone)) return 1;
 	else return 0;
+}
+
+int AddSystem(Json::Value json)
+{
+	Database s("localhost", "root", DB_PASSWORD, "appservice", "systemtable", 3306);
+	System system;
+	system.name = json["data"]["name"].asString();
+	//дописать остальные поля
+
+
+	return 0;
 }
 
 int SignUp(Json::Value json, int &userid)
@@ -333,7 +350,7 @@ std::string CreateResponseZone(vector<Zone> zone, int zoneid)
 		response["data"]["zones"].append(zres);
 	}
 	//std::cout << "TOTAL JSON BELOW=========\n";
-	//std::cout << response.toStyledString();
+	YELLOW; std::cout << response.toStyledString(); WHITE;
 	return response.toStyledString();
 }
 
@@ -361,12 +378,13 @@ std::string CreateResponseSystem(vector<System> system, int zoneid)
 		system_response["startOperationDate"] = system[i].startOperationDate;
 		system_response["lastSeenDate"]		  = system[i].lastSeenDate;
 		system_response["description"]		  = system[i].description;
+		system_response["photo"]			  = system[i].photo;
 		system_response["zone_id"]			  = system[i].zone_id;
 		response["data"]["systems"].append(system_response);
 	}
 
-	std::cout << "FULL JSON BELOW=============\n";
-	std::cout << response.toStyledString() << endl;
+	//std::cout << "FULL JSON BELOW=============\n";
+	YELLOW; std::cout << response.toStyledString() << endl; WHITE;
 	return response.toStyledString();
 }
 
@@ -379,4 +397,12 @@ void update(Json::Value& a, Json::Value& b) {
 			a[key] = b[key];
 		}
 	}
+}
+
+std::string CreateResponseError(std::string error, int code)
+{
+	ErrorLog log(ErrorLog::noError);
+	log.ERROR_CODE = code;
+	log.ERROR_MESSAGE = error;
+	return log.GetJson().toStyledString();
 }
