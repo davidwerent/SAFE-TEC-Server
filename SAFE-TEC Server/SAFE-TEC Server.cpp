@@ -116,7 +116,7 @@ int main()
         .message = [](auto* ws, std::string_view message, uWS::OpCode opCode) {
              UserConnection* data = (UserConnection*)ws->getUserData();
              std::string c{ message };
-             //std::cout << message << std::endl;
+             std::cout << message << std::endl;
              //RunCommand(data, c);
              std::string answer = NewCommand(data, c);
              //std::cout << data->login << "\n";
